@@ -34,14 +34,19 @@
             padding: 10px 20px;
             cursor: pointer;
         }
-        #resetButton, #showResultsButton {
-            background-color: #ff4444;
+        #resetButton, #showResultsButton, #startButton {
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
         }
-        #showResultsButton {
-            background-color: #4CAF50;
+		#startButton {
+            background-color: #4444ff;
+            color: white;
+            border: none;
+        }
+        #resetButton {
+            background-color: #ff4444;
         }
         .modal {
             display: none;
@@ -87,33 +92,46 @@
             width: 50px;
             margin: 0 5px;
         }
+        #currentRange {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="currentRange"></div>
         <div id="currentCode"></div>
         <div id="result"></div>
-        <button onclick="draw()">抽籤</button>
-        <button onclick="hideNumber()">我知道了</button>
+        <button onclick="draw()" disabled>抽籤</button>
+        <button onclick="hideNumber()" disabled>我知道了</button>
     </div>
-    <button id="showResultsButton" onclick="confirmShowResults()">公布結果</button>
-    <button id="resetButton" onclick="confirmReset()">重置</button>
-    <div id="rangeInputs">
-        範圍：
-        <input type="number" id="minNumber" value="0" min="0">
-        到
-        <input type="number" id="maxNumber" value="100" min="0">
-    </div>
+    <button id="showResultsButton" onclick="confirmShowResults()" disabled>公布結果</button>
+    <button id="resetButton" onclick="confirmReset()" disabled>重置</button>
+    <button id="startButton" onclick="showStartModal()">開始</button>
 
     <div id="resultModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
+            <span class="close" onclick="closeModal('resultModal')">&times;</span>
             <div id="resultList"></div>
         </div>
     </div>
 
+    <div id="rangeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('rangeModal')">&times;</span>
+            <h2>請輸入數字範圍</h2>
+            <div id="rangeInputs">
+                最小值：<input type="number" id="minNumber" value="0" min="0">
+                最大值：<input type="number" id="maxNumber" value="100" min="0">
+            </div>
+            <button onclick="initializeGame()">確定</button>
+        </div>
+    </div>
+
     <div class="developer">
-        dev:Shuin 2024/07/13
+        dev:shiun 2024/7/13
     </div>
 
     <script>
@@ -121,9 +139,48 @@
         let currentNumber = null;
         let results = {};
         let currentCode = 'A';
+        let minValue, maxValue;
+
+        function showStartModal() {
+            document.getElementById('rangeModal').style.display = "block";
+        }
 
         function initializeNumbers(min, max) {
             numbers = Array.from({length: max - min + 1}, (_, i) => i + min);
+            minValue = min;
+            maxValue = max;
+            updateRangeDisplay();
+        }
+
+        function updateRangeDisplay() {
+            document.getElementById('currentRange').textContent = `當前數字範圍：${minValue} 到 ${maxValue}`;
+        }
+
+        function initializeGame() {
+            const min = parseInt(document.getElementById('minNumber').value);
+            const max = parseInt(document.getElementById('maxNumber').value);
+            if (min >= max) {
+                alert('最小值必須小於最大值！');
+                return;
+            }
+            resetGame(min, max);
+            closeModal('rangeModal');
+            enableButtons();
+        }
+
+        function resetGame(min, max) {
+            initializeNumbers(min, max);
+            currentNumber = null;
+            results = {};
+            currentCode = 'A';
+            document.getElementById('result').textContent = '';
+            document.getElementById('currentCode').textContent = '';
+            document.getElementById('resultList').innerHTML = '';
+        }
+
+        function enableButtons() {
+            document.querySelectorAll('button').forEach(button => button.disabled = false);
+            document.getElementById('startButton').disabled = true;
         }
 
         function draw() {
@@ -147,24 +204,8 @@
 
         function confirmReset() {
             if (confirm('確定要重置嗎？')) {
-                reset();
+                showStartModal();
             }
-        }
-
-        function reset() {
-            const min = parseInt(document.getElementById('minNumber').value);
-            const max = parseInt(document.getElementById('maxNumber').value);
-            if (min >= max) {
-                alert('最小值必須小於最大值！');
-                return;
-            }
-            initializeNumbers(min, max);
-            currentNumber = null;
-            results = {};
-            currentCode = 'A';
-            document.getElementById('result').textContent = '';
-            document.getElementById('currentCode').textContent = '';
-            document.getElementById('resultList').innerHTML = '';
         }
 
         function confirmShowResults() {
@@ -176,26 +217,26 @@
         function showResults() {
             const sortedResults = Object.entries(results).sort((a, b) => b[1] - a[1]);
             let resultHTML = '<h2>抽籤結果（由大到小排序）：</h2>';
-            sortedResults.forEach(([code, number]) => {
-                resultHTML += `<p>${code}: ${number}</p>`;
-            });
+            if (sortedResults.length === 0) {
+                resultHTML += '<p>尚未進行抽籤</p>';
+            } else {
+                sortedResults.forEach(([code, number]) => {
+                    resultHTML += `<p>${code}: ${number}</p>`;
+                });
+            }
             document.getElementById('resultList').innerHTML = resultHTML;
             document.getElementById('resultModal').style.display = "block";
         }
 
-        function closeModal() {
-            document.getElementById('resultModal').style.display = "none";
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
         }
 
         window.onclick = function(event) {
-            let modal = document.getElementById('resultModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
+            if (event.target.className === 'modal') {
+                event.target.style.display = "none";
             }
         }
-
-        // 初始化數字範圍
-        initializeNumbers(0, 100);
     </script>
 </body>
 </html>
