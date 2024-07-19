@@ -129,15 +129,17 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('rangeModal')">&times;</span>
             <h2>請選擇題目和輸入數字範圍</h2>
-            <select id="questionSelect">
+            <select id="questionSelect" onchange="updateSelectedQuestion()">
                 <!-- 題目選項會在JavaScript中動態添加 -->
             </select>
 			<button id="randomQuestionButton" onclick="selectRandomQuestion()">隨機題目</button>
+			<div id="selectedQuestion"></div>
             <div id="rangeInputs">
                 最小值：<input type="number" id="minNumber" value="1" min="1">
                 最大值：<input type="number" id="maxNumber" value="10" min="1">
             </div>
             <button onclick="initializeGame()">確定</button>
+			
         </div>
     </div>
 
@@ -447,7 +449,12 @@
 "所有人輪流觸碰一下右手邊的玩家。(最低是最客氣，最高是最親密)",
 "說出異性身上的一個部位。(最低是最不在意，最高是最重視)",
         ];
-
+		
+		function updateSelectedQuestion() {
+			const select = document.getElementById('questionSelect');
+			const selectedQuestion = questions[select.value];
+			document.getElementById('selectedQuestion').textContent = selectedQuestion;
+		}
         function showStartModal() {
             const select = document.getElementById('questionSelect');
             select.innerHTML = '';
@@ -457,6 +464,7 @@
                 option.textContent = q;
                 select.appendChild(option);
             });
+			updateSelectedQuestion(); 
             document.getElementById('rangeModal').style.display = "block";
         }
 
@@ -525,7 +533,9 @@
             const select = document.getElementById('questionSelect');
             const randomIndex = Math.floor(Math.random() * questions.length);
             select.value = randomIndex;
+			updateSelectedQuestion();
         }
+		
 
         function confirmReset() {
             if (confirm('確定要重置嗎？')) {
