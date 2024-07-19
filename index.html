@@ -117,12 +117,11 @@
         <div id="currentRange"></div>
         <div id="currentCode"></div>
         <div id="result"></div>
-        <button onclick="draw()" disabled>抽籤</button>
-        <button onclick="hideNumber()" disabled>我知道了</button>
+        <button id="drawButton" onclick="draw()" disabled>抽個數字</button>
+        <button id="hideButton" onclick="hideNumber()" disabled>我知道了</button>
     </div>
     <button id="showResultsButton" onclick="confirmShowResults()" disabled>公布結果</button>
     <button id="resetButton" onclick="confirmReset()" disabled>重置</button>
-    <button id="startButton" onclick="showStartModal()">開始</button>
 
     <div id="resultModal" class="modal">
         <div class="modal-content">
@@ -448,6 +447,8 @@
 "我被劈腿了，請告訴我你是怎麼發現我的伴侶出軌。(最低是最委婉，最高是最讓我崩潰)",
         ];
 
+		showStartModal()
+
 		function updateSelectedQuestion() {
 			const select = document.getElementById('questionSelect');
 			const selectedQuestion = questions[select.value];
@@ -463,7 +464,9 @@
                 select.appendChild(option);
             });
 			updateSelectedQuestion();
+			selectRandomQuestion();
             document.getElementById('rangeModal').style.display = "block";
+
         }
 
         function initializeNumbers(min, max) {
@@ -506,6 +509,8 @@
         function enableButtons() {
             document.querySelectorAll('button').forEach(button => button.disabled = false);
             document.getElementById('startButton').disabled = true;
+			document.getElementById('startButton').disabled = true;
+			document.getElementById('hideButton').disabled = true;
         }
 
         function draw() {
@@ -520,11 +525,19 @@
             document.getElementById('currentCode').textContent = currentCode;
             results[currentCode] = currentNumber;
             currentCode = String.fromCharCode(currentCode.charCodeAt(0) + 1);
+			
+			 // 禁用"抽個數字"按鈕,啟用"我知道了"按鈕
+			document.getElementById('drawButton').disabled = true;
+			document.getElementById('hideButton').disabled = false;
         }
 
         function hideNumber() {
             document.getElementById('result').textContent = '';
             document.getElementById('currentCode').textContent = '';
+			
+			// 啟用"抽個數字"按鈕,禁用"我知道了"按鈕
+		document.getElementById('drawButton').disabled = false;
+		document.getElementById('hideButton').disabled = true;
         }
 
 		function selectRandomQuestion() {
