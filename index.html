@@ -103,6 +103,12 @@
             width: 100%;
             margin-bottom: 10px;
         }
+		#selectedQuestion {
+			display: block;
+			margin-top: 10px;
+			font-size: 16px;
+			line-height: 1.4;
+		}
     </style>
 </head>
 <body>
@@ -133,13 +139,13 @@
                 <!-- 題目選項會在JavaScript中動態添加 -->
             </select>
 			<button id="randomQuestionButton" onclick="selectRandomQuestion()">隨機題目</button>
-			<div id="selectedQuestion"></div>
+			<strong  id="selectedQuestion"></strong >
             <div id="rangeInputs">
                 最小值：<input type="number" id="minNumber" value="1" min="1">
                 最大值：<input type="number" id="maxNumber" value="10" min="1">
             </div>
             <button onclick="initializeGame()">確定</button>
-			
+
         </div>
     </div>
 
@@ -154,7 +160,7 @@
         let currentCode = 'A';
         let minValue, maxValue;
         let currentQuestion = '';
-        
+
         const questions = [
 "說出一種文具。(最低是我最少用，最高是我最常用)",
 "在你的學生時代，上課時都瞞著老師做些甚麼？ (最低是最乖，最高是最搗蛋)",
@@ -449,7 +455,7 @@
 "所有人輪流觸碰一下右手邊的玩家。(最低是最客氣，最高是最親密)",
 "說出異性身上的一個部位。(最低是最不在意，最高是最重視)",
         ];
-		
+
 		function updateSelectedQuestion() {
 			const select = document.getElementById('questionSelect');
 			const selectedQuestion = questions[select.value];
@@ -464,7 +470,7 @@
                 option.textContent = q;
                 select.appendChild(option);
             });
-			updateSelectedQuestion(); 
+			updateSelectedQuestion();
             document.getElementById('rangeModal').style.display = "block";
         }
 
@@ -489,7 +495,7 @@
             const questionIndex = document.getElementById('questionSelect').value;
             currentQuestion = questions[questionIndex].replace('X', min).replace('Y', max);
             document.getElementById('currentQuestion').textContent = currentQuestion;
-            
+
             resetGame(min, max);
             closeModal('rangeModal');
             enableButtons();
@@ -528,14 +534,14 @@
             document.getElementById('result').textContent = '';
             document.getElementById('currentCode').textContent = '';
         }
-		
+
 		function selectRandomQuestion() {
             const select = document.getElementById('questionSelect');
             const randomIndex = Math.floor(Math.random() * questions.length);
             select.value = randomIndex;
 			updateSelectedQuestion();
         }
-		
+
 
         function confirmReset() {
             if (confirm('確定要重置嗎？')) {
