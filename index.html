@@ -50,6 +50,26 @@
         #resetButton {
             background-color: #ff4444;
         }
+		#rememberButton {
+			background-color: #2196F3;
+			color: white;
+			border: none;
+			border-radius: 5px;
+		}
+		#forgottenNumber {
+			font-size: 36px;
+			font-weight: bold;
+			color: red;
+			margin: 20px 0;
+		}
+		.button-row {
+			display: flex;
+			justify-content: center;
+			margin-top: 20px;
+		}
+		.button-row button {
+			margin: 0 10px;
+		}
         .modal {
             display: none;
             position: fixed;
@@ -120,6 +140,7 @@
         <button id="drawButton" onclick="draw()" disabled>抽個數字</button>
         <button id="hideButton" onclick="hideNumber()" disabled>我知道了</button>
     </div>
+	<button id="forgotNumberButton" onclick="showForgotNumberModal()" disabled>忘記數字</button>
     <button id="showResultsButton" onclick="confirmShowResults()" disabled>公布結果</button>
     <button id="resetButton" onclick="confirmReset()" disabled>重置</button>
 
@@ -129,7 +150,20 @@
             <div id="resultList"></div>
         </div>
     </div>
-
+	<div id="forgotNumberModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal('forgotNumberModal')">&times;</span>
+			<h2>忘記數字</h2>
+			<select id="codeSelect">
+				<!-- 選項將在JavaScript中動態添加 -->
+			</select>
+			<button onclick="showForgottenNumber()">顯示數字</button>
+			<div id="forgottenNumber"></div>
+			<div class="button-row">
+				<button id="rememberButton" onclick="closeModal('forgotNumberModal')">我記得了</button>
+			</div>
+		</div>
+	</div>
     <div id="rangeModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('rangeModal')">&times;</span>
@@ -160,7 +194,7 @@
         let minValue, maxValue;
         let currentQuestion = '';
 
-        const questions = [
+const questions = [
 "說出一種文具。(最低是我最少用，最高是我最常用)",
 "在你的學生時代，上課時都瞞著老師做些甚麼？ (最低是最乖，最高是最搗蛋)",
 "說出一個大學科系。 (最低是最冷門，最高是最熱門)",
@@ -448,7 +482,27 @@
         ];
 
 		showStartModal()
+		
+		function showForgotNumberModal() {
+			const select = document.getElementById('codeSelect');
+			select.innerHTML = '';
+			Object.keys(results).forEach(code => {
+				const option = document.createElement('option');
+				option.value = code;
+				option.textContent = code;
+				select.appendChild(option);
+			});
+			document.getElementById('forgotNumberModal').style.display = "block";
+			// 重置顯示的數字
+			document.getElementById('forgottenNumber').textContent = '';
+		}
 
+		function showForgottenNumber() {
+			const code = document.getElementById('codeSelect').value;
+			const number = results[code];
+			document.getElementById('forgottenNumber').textContent = number ? `你的數字是：「${number}」` : '找不到對應的數字';
+		}
+		
 		function updateSelectedQuestion() {
 			const select = document.getElementById('questionSelect');
 			const selectedQuestion = questions[select.value];
