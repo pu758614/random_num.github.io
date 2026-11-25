@@ -85,13 +85,28 @@
     if (navigator.vibrate) navigator.vibrate(ms);
   }
 
+  // 量表：像尺一樣的刻度線，兩端標出數字與說明
   function renderScale(container, q) {
-    container.replaceChildren();
-    if (!q.low && !q.high) { container.hidden = true; return; }
-    container.hidden = false;
-    container.append(
-      el('div', { className: 'scale-end low' }, [el('b', { textContent: `最低 ${state.min}` }), q.low]),
-      el('div', { className: 'scale-end high' }, [el('b', { textContent: `最高 ${state.max}` }), q.high]),
+    const count = state.max - state.min + 1;
+    // 刻度太多時改成每隔幾格一條，最多約 20 條
+    const stepSize = count <= 21 ? 1 : Math.ceil((count - 1) / 20);
+    const track = el('div', { className: 'ruler-track' });
+    for (let n = state.min; n <= state.max; n += stepSize) {
+      const tick = el('span', { className: 'ruler-tick' });
+      if (n === state.min) tick.classList.add('major');
+      tick.style.left = `${ratio(n) * 100}%`;
+      track.append(tick);
+    }
+    const last = el('span', { className: 'ruler-tick major' });
+    last.style.left = '100%';
+    track.append(last);
+
+    container.replaceChildren(
+      track,
+      el('div', { className: 'ruler-ends' }, [
+        el('div', { className: 'low' }, [el('span', { className: 'num', textContent: state.min }), q.low]),
+        el('div', { className: 'high' }, [el('span', { className: 'num', textContent: state.max }), q.high]),
+      ]),
     );
   }
 
@@ -132,6 +147,7 @@
   function renderSetup() {
     const q = questions[state.qIndex];
     $('setupQuestion').textContent = q.prompt;
+    $('setupNo').textContent = `No. ${q.index + 1} / ${questions.length}`;
     minInput.value = state.min;
     maxInput.value = state.max;
     validateRange();
@@ -189,8 +205,9 @@
     $('browseCount').textContent = `（${matched.length} / ${questions.length}）`;
     list.replaceChildren(...matched.map((q) => {
       const btn = el('button', { type: 'button' }, [
-        q.prompt,
-        el('span', { className: 'q-ends', textContent: q.low ? `${q.low} ↔ ${q.high}` : '' }),
+        el('span', { className: 'q-no', textContent: q.index + 1 }),
+        el('span', { className: 'q-text', textContent: q.prompt }),
+        el('span', { className: 'q-ends', textContent: q.low ? `${q.low} ／ ${q.high}` : '' }),
       ]);
       if (q.index === state.qIndex) btn.setAttribute('aria-current', 'true');
       btn.addEventListener('click', () => {
@@ -236,30 +253,30 @@
 
     const total = state.max - state.min + 1;
     const drawn = state.players.length;
-    $('progressFill').style.width = `${(drawn / total) * 100}%`;
-    $('progressText').textContent = `已抽 ${drawn} / ${total}`;
+    $('progressText').textContent = `${drawn} / ${total}`;
 
     const current = state.players[drawn - 1];
     if (state.showing && current) {
-      $('playerTag').textContent = `玩家 ${current.code}`;
+      const corner = `${current.number}\n${current.code}`;
+      $('cornerTL').textContent = corner;
+      $('cornerBR').textContent = corner;
       $('bigNumber').textContent = current.number;
       $('miniDot').style.left = `${ratio(current.number) * 100}%`;
       flip.dataset.state = 'revealed';
       $('drawBtn').hidden = true;
       $('hideBtn').hidden = false;
-      $('reminder').textContent = '記住你的數字和代號，然後蓋起來傳給下一位。';
+      $('reminder').textContent = `你是 ${current.code}。記住數字，蓋牌後傳給下一位。`;
     } else {
       flip.dataset.state = 'idle';
       $('drawBtn').hidden = false;
       $('hideBtn').hidden = true;
       const empty = state.pool.length === 0;
       $('drawBtn').disabled = empty;
-      $('frontCaption').textContent = empty
-        ? '數字都抽完了'
-        : `輪到玩家 ${codeFor(drawn)}`;
+      $('frontPlayer').textContent = empty ? '—' : codeFor(drawn);
+      $('frontNote').textContent = empty ? '數字已全部抽完' : '其他人請先別看';
       $('reminder').textContent = empty
-        ? '開始輪流發言或表演吧！'
-        : drawn === 0 ? '第一位玩家請點「抽個數字」' : '請下一位玩家點「抽個數字」';
+        ? '開始輪流回答或表演吧。'
+        : drawn === 0 ? '從第一位玩家開始。' : '傳給下一位玩家。';
     }
 
     const list = $('playerList');
@@ -323,11 +340,11 @@
     renderScale($('resultScale'), questions[state.qIndex]);
     const sorted = [...state.players].sort((a, b) => b.number - a.number);
     $('resultList').replaceChildren(...sorted.map((p, i) => {
-      const bar = el('span');
-      bar.style.width = `${Math.max(4, ratio(p.number) * 100)}%`;
+      const dot = el('span', { className: 'r-dot' });
+      dot.style.left = `${ratio(p.number) * 100}%`;
       const li = el('li', {}, [
         el('span', { className: 'r-code', textContent: p.code }),
-        el('span', { className: 'r-bar' }, [bar]),
+        el('span', { className: 'r-track' }, [dot]),
         el('span', { className: 'r-num', textContent: p.number }),
       ]);
       li.style.animationDelay = `${i * 70}ms`;

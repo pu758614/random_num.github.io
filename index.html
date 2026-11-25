@@ -3,97 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#6d4aff">
+  <meta name="theme-color" content="#f2ece0">
   <meta name="description" content="腦洞量表：抽一個秘密數字，依照數字大小回答或表演題目的派對遊戲。">
   <title>腦洞量表</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='4' y='4' width='56' height='56' rx='6' fill='%23f2ece0' stroke='%231f1b16' stroke-width='4'/><text x='32' y='45' font-size='34' font-weight='900' text-anchor='middle' fill='%23c8402a' font-family='serif'>腦</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="topbar">
-    <h1 class="brand"><span aria-hidden="true">🧠</span> 腦洞量表</h1>
-    <button class="icon-btn" id="helpBtn" type="button" aria-label="遊戲說明">?</button>
+    <h1 class="brand">腦洞量表</h1>
+    <button class="text-btn" id="helpBtn" type="button">玩法</button>
   </header>
 
   <main>
     <!-- ───────── 設定畫面 ───────── -->
     <section id="setupView" class="view" aria-labelledby="setupTitle">
-      <h2 id="setupTitle" class="section-title">選一道題目</h2>
+      <div class="label-row">
+        <h2 id="setupTitle" class="label">本輪題目</h2>
+        <span class="label muted" id="setupNo"></span>
+      </div>
 
-      <article class="card question-card">
+      <article class="panel">
         <p class="question-text" id="setupQuestion"></p>
-        <div class="scale" id="setupScale"></div>
-        <div class="row">
-          <button class="btn btn-ghost" id="shuffleBtn" type="button">🎲 換一題</button>
-          <button class="btn btn-ghost" id="browseBtn" type="button">📚 瀏覽題庫</button>
-        </div>
+        <div class="ruler" id="setupScale"></div>
       </article>
+      <div class="row">
+        <button class="btn" id="shuffleBtn" type="button">換一題</button>
+        <button class="btn" id="browseBtn" type="button">從題庫挑</button>
+      </div>
 
-      <h2 class="section-title">數字範圍</h2>
-      <article class="card range-card">
+      <h2 class="label spaced">數字範圍</h2>
+      <article class="panel range-panel">
         <div class="stepper">
-          <span class="stepper-label">最小值</span>
+          <label class="stepper-label" for="minInput">最小</label>
           <div class="stepper-ctrl">
             <button type="button" class="step" data-target="minInput" data-delta="-1" aria-label="最小值減一">−</button>
             <input type="number" id="minInput" inputmode="numeric" value="1" min="0" max="998">
-            <button type="button" class="step" data-target="minInput" data-delta="1" aria-label="最小值加一">＋</button>
+            <button type="button" class="step" data-target="minInput" data-delta="1" aria-label="最小值加一">+</button>
           </div>
         </div>
         <div class="stepper">
-          <span class="stepper-label">最大值</span>
+          <label class="stepper-label" for="maxInput">最大</label>
           <div class="stepper-ctrl">
             <button type="button" class="step" data-target="maxInput" data-delta="-1" aria-label="最大值減一">−</button>
             <input type="number" id="maxInput" inputmode="numeric" value="10" min="1" max="999">
-            <button type="button" class="step" data-target="maxInput" data-delta="1" aria-label="最大值加一">＋</button>
+            <button type="button" class="step" data-target="maxInput" data-delta="1" aria-label="最大值加一">+</button>
           </div>
         </div>
         <p class="hint" id="rangeHint"></p>
       </article>
 
-      <button class="btn btn-primary btn-lg btn-block" id="startBtn" type="button">開始遊戲</button>
+      <button class="btn btn-ink btn-lg btn-block" id="startBtn" type="button">開始</button>
     </section>
 
     <!-- ───────── 遊戲畫面 ───────── -->
     <section id="gameView" class="view" hidden aria-label="遊戲進行中">
-      <article class="card question-card compact">
-        <p class="question-text" id="gameQuestion"></p>
-        <div class="scale" id="gameScale"></div>
+      <article class="panel">
+        <p class="question-text small" id="gameQuestion"></p>
+        <div class="ruler" id="gameScale"></div>
       </article>
-
-      <div class="progress" aria-live="polite">
-        <div class="progress-bar"><span id="progressFill"></span></div>
-        <span class="progress-text" id="progressText"></span>
-      </div>
 
       <div class="draw-zone">
         <div class="flip" id="flipCard" data-state="idle">
           <div class="flip-inner">
             <div class="flip-face flip-front">
-              <span class="flip-emoji" aria-hidden="true">🤫</span>
-              <span class="flip-caption" id="frontCaption">輪到下一位玩家</span>
+              <div class="card-back-frame">
+                <span class="front-kicker">輪到</span>
+                <span class="front-player" id="frontPlayer"></span>
+                <span class="front-note" id="frontNote">其他人請先別看</span>
+              </div>
             </div>
             <div class="flip-face flip-back">
-              <span class="player-tag" id="playerTag"></span>
+              <span class="corner tl" id="cornerTL"></span>
               <span class="big-number" id="bigNumber"></span>
-              <div class="mini-scale" aria-hidden="true">
-                <span class="mini-track"><span class="mini-dot" id="miniDot"></span></span>
+              <span class="corner br" id="cornerBR"></span>
+              <div class="card-ruler" aria-hidden="true">
+                <span class="card-ruler-line"><span class="card-ruler-mark" id="miniDot"></span></span>
               </div>
             </div>
           </div>
         </div>
         <p class="reminder" id="reminder" aria-live="polite"></p>
-        <button class="btn btn-primary btn-lg btn-block" id="drawBtn" type="button">抽個數字</button>
-        <button class="btn btn-success btn-lg btn-block" id="hideBtn" type="button" hidden>我記住了，蓋起來</button>
+        <button class="btn btn-ink btn-lg btn-block" id="drawBtn" type="button">抽數字</button>
+        <button class="btn btn-lg btn-block" id="hideBtn" type="button" hidden>記住了，蓋牌</button>
       </div>
 
       <div class="players-block">
-        <h2 class="section-title small">已抽玩家 <span class="muted">（點代號可找回忘記的數字）</span></h2>
+        <div class="label-row">
+          <h2 class="label">已抽</h2>
+          <span class="label muted" id="progressText" aria-live="polite"></span>
+        </div>
         <ul class="players" id="playerList"></ul>
+        <p class="hint">忘了自己的數字？點你的代號。</p>
       </div>
 
       <div class="row actions">
-        <button class="btn btn-accent" id="revealBtn" type="button">🎉 公布結果</button>
-        <button class="btn btn-ghost danger" id="restartBtn" type="button">↺ 重新開始</button>
+        <button class="btn btn-red" id="revealBtn" type="button">公布結果</button>
+        <button class="btn" id="restartBtn" type="button">重新開始</button>
       </div>
     </section>
   </main>
@@ -102,33 +111,33 @@
   <dialog id="browseDialog" class="sheet">
     <div class="sheet-head">
       <h2>題庫 <span class="muted" id="browseCount"></span></h2>
-      <button class="icon-btn" type="button" data-close aria-label="關閉">✕</button>
+      <button class="text-btn" type="button" data-close>關閉</button>
     </div>
-    <input type="search" id="searchInput" class="search" placeholder="搜尋題目關鍵字…">
-    <ul class="question-list" id="questionList"></ul>
+    <input type="search" id="searchInput" class="search" placeholder="搜尋題目">
+    <ol class="question-list" id="questionList"></ol>
   </dialog>
 
   <!-- ───────── 結果 ───────── -->
   <dialog id="resultDialog" class="sheet">
     <div class="sheet-head">
-      <h2>🎉 抽籤結果</h2>
-      <button class="icon-btn" type="button" data-close aria-label="關閉">✕</button>
+      <h2>結果</h2>
+      <button class="text-btn" type="button" data-close>關閉</button>
     </div>
-    <div class="scale" id="resultScale"></div>
+    <div class="ruler" id="resultScale"></div>
     <ol class="result-list" id="resultList"></ol>
-    <button class="btn btn-primary btn-block" type="button" id="newRoundBtn">再玩一輪</button>
+    <button class="btn btn-ink btn-block" type="button" id="newRoundBtn">再玩一輪</button>
   </dialog>
 
   <!-- ───────── 找回數字 ───────── -->
   <dialog id="peekDialog" class="sheet small">
     <div class="sheet-head">
       <h2 id="peekTitle"></h2>
-      <button class="icon-btn" type="button" data-close aria-label="關閉">✕</button>
+      <button class="text-btn" type="button" data-close>關閉</button>
     </div>
-    <p class="muted">請確認只有本人在看螢幕。</p>
+    <p class="muted">確認只有你在看螢幕再按。</p>
     <div class="peek-number" id="peekNumber" hidden></div>
-    <button class="btn btn-primary btn-block" type="button" id="peekShowBtn">顯示我的數字</button>
-    <button class="btn btn-success btn-block" type="button" id="peekDoneBtn" data-close hidden>我記得了</button>
+    <button class="btn btn-ink btn-block" type="button" id="peekShowBtn">翻開</button>
+    <button class="btn btn-block" type="button" id="peekDoneBtn" data-close hidden>記得了</button>
   </dialog>
 
   <!-- ───────── 確認 ───────── -->
@@ -136,24 +145,23 @@
     <h2 id="confirmTitle"></h2>
     <p class="muted" id="confirmText"></p>
     <div class="row">
-      <button class="btn btn-ghost" type="button" data-close>取消</button>
-      <button class="btn btn-primary" type="button" id="confirmOk">確定</button>
+      <button class="btn" type="button" data-close>取消</button>
+      <button class="btn btn-ink" type="button" id="confirmOk">確定</button>
     </div>
   </dialog>
 
   <!-- ───────── 說明 ───────── -->
   <dialog id="helpDialog" class="sheet">
     <div class="sheet-head">
-      <h2>怎麼玩？</h2>
-      <button class="icon-btn" type="button" data-close aria-label="關閉">✕</button>
+      <h2>玩法</h2>
+      <button class="text-btn" type="button" data-close>關閉</button>
     </div>
     <ol class="help-list">
-      <li>選一道題目（或按「換一題」隨機抽），設定數字範圍後開始。</li>
-      <li>手機輪流傳給每位玩家，各自按「抽個數字」看自己的秘密數字，記住後蓋起來再傳下去。</li>
-      <li>題目會說明數字小與大各代表什麼。大家依照自己的數字回答或表演，數字越大就越接近「最高」那一端。</li>
-      <li>所有人表演完後，一起猜出每個人的數字順序，最後按「公布結果」對答案！</li>
+      <li>選一道題目，設定數字範圍後開始。</li>
+      <li>手機輪流傳下去，每人抽一個秘密數字，看完蓋牌再傳。</li>
+      <li>照自己的數字回答或表演——數字越大，越靠近題目的「最高」那端。</li>
+      <li>大家一起猜每個人的順序，最後公布結果對答案。</li>
     </ol>
-    <p class="muted">忘記數字？在已抽玩家清單點自己的代號就能再看一次。</p>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
