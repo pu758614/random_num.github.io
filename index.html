@@ -53,6 +53,18 @@
             <button type="button" class="step" data-target="maxInput" data-delta="1" aria-label="最大值加一">+</button>
           </div>
         </div>
+      </article>
+
+      <h2 class="label spaced">玩家人數</h2>
+      <article class="panel range-panel">
+        <div class="stepper">
+          <label class="stepper-label" for="playersInput">人數</label>
+          <div class="stepper-ctrl">
+            <button type="button" class="step" data-target="playersInput" data-delta="-1" aria-label="人數減一">−</button>
+            <input type="number" id="playersInput" inputmode="numeric" value="4" min="1" max="999">
+            <button type="button" class="step" data-target="playersInput" data-delta="1" aria-label="人數加一">+</button>
+          </div>
+        </div>
         <p class="hint" id="rangeHint"></p>
       </article>
 
@@ -157,7 +169,7 @@
       <button class="text-btn" type="button" data-close>關閉</button>
     </div>
     <ol class="help-list">
-      <li>選一道題目，設定數字範圍後開始。</li>
+      <li>選一道題目，設定數字範圍和玩家人數後開始。</li>
       <li>手機輪流傳下去，每人抽一個秘密數字，看完蓋牌再傳。</li>
       <li>照自己的數字回答或表演——數字越大，越靠近題目的「最高」那端。</li>
       <li>大家一起猜每個人的順序，最後公布結果對答案。</li>

@@ -32,6 +32,7 @@
     qIndex: randomIndex(),
     min: 1,
     max: 10,
+    playerCount: 4,      // 本輪玩家人數（不可多於數字數量）
     pool: [],            // 尚未被抽走的數字
     players: [],         // [{ code, number }]
     showing: false,      // 目前是否正在顯示某位玩家的數字
@@ -43,7 +44,11 @@
   function loadState() {
     try {
       const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (s && questions[s.qIndex] && Array.isArray(s.pool) && Array.isArray(s.players)) return s;
+      if (s && questions[s.qIndex] && Array.isArray(s.pool) && Array.isArray(s.players)) {
+        // 舊版存檔沒有人數設定：沿用舊行為（人數 = 數字數量）
+        if (!Number.isInteger(s.playerCount)) s.playerCount = s.max - s.min + 1;
+        return s;
+      }
     } catch { /* ignore */ }
     return null;
   }
@@ -153,6 +158,7 @@
   // ───────── 設定畫面 ─────────
   const minInput = $('minInput');
   const maxInput = $('maxInput');
+  const playersInput = $('playersInput');
 
   function renderSetup() {
     const q = questions[state.qIndex];
@@ -160,28 +166,37 @@
     $('setupNo').textContent = `No. ${q.index + 1} / ${questions.length}`;
     minInput.value = state.min;
     maxInput.value = state.max;
+    playersInput.value = state.playerCount;
     validateRange();
   }
 
   function readRange() {
-    return { min: parseInt(minInput.value, 10), max: parseInt(maxInput.value, 10) };
+    return {
+      min: parseInt(minInput.value, 10),
+      max: parseInt(maxInput.value, 10),
+      players: parseInt(playersInput.value, 10),
+    };
   }
 
   function validateRange() {
-    const { min, max } = readRange();
+    const { min, max, players } = readRange();
     const hint = $('rangeHint');
     let error = '';
-    if (Number.isNaN(min) || Number.isNaN(max)) error = '請輸入數字';
+    const count = max - min + 1;
+    if (Number.isNaN(min) || Number.isNaN(max) || Number.isNaN(players)) error = '請輸入數字';
     else if (min < RANGE_MIN || max > RANGE_MAX) error = `範圍需在 ${RANGE_MIN}～${RANGE_MAX} 之間`;
     else if (min >= max) error = '最小值必須小於最大值';
+    else if (players < 1) error = '至少要 1 位玩家';
+    else if (players > count) error = `玩家人數不能多於數字數量（共 ${count} 個數字）`;
 
     hint.classList.toggle('error', Boolean(error));
-    hint.textContent = error || `共 ${max - min + 1} 個數字，最多可 ${max - min + 1} 人遊玩`;
+    hint.textContent = error || `${players} 位玩家從 ${min}～${max} 共 ${count} 個數字中各抽一個`;
     $('startBtn').disabled = Boolean(error);
 
     if (!error) {
       state.min = min;
       state.max = max;
+      state.playerCount = players;
       renderScale($('setupScale'), questions[state.qIndex]);
     }
     return !error;
@@ -189,12 +204,13 @@
 
   minInput.addEventListener('input', validateRange);
   maxInput.addEventListener('input', validateRange);
+  playersInput.addEventListener('input', validateRange);
 
   document.querySelectorAll('.step').forEach((btn) => {
     btn.addEventListener('click', () => {
       const input = $(btn.dataset.target);
       const next = (parseInt(input.value, 10) || 0) + Number(btn.dataset.delta);
-      input.value = Math.min(RANGE_MAX, Math.max(RANGE_MIN, next));
+      input.value = Math.min(Number(input.max), Math.max(Number(input.min), next));
       validateRange();
     });
   });
@@ -258,13 +274,13 @@
 
   function renderGame() {
     const q = questions[state.qIndex];
-    const total = state.max - state.min + 1;
+    const total = state.playerCount;
     const drawn = state.players.length;
     const current = state.players[drawn - 1];
 
     $('gameQuestion').textContent = q.prompt;
     renderScale($('gameScale'), q, state.showing && current ? current.number : null);
-    $('progressText').textContent = `${drawn} / ${total}`;
+    $('progressText').textContent = `${drawn} / ${total} 人`;
 
     if (state.showing && current) {
       const corner = `${current.number}\n${current.code}`;
@@ -280,10 +296,10 @@
       flip.dataset.state = 'idle';
       $('drawBtn').hidden = false;
       $('hideBtn').hidden = true;
-      const empty = state.pool.length === 0;
+      const empty = drawn >= total || state.pool.length === 0;
       $('drawBtn').disabled = empty;
       $('frontPlayer').textContent = empty ? '—' : codeFor(drawn);
-      $('frontNote').textContent = empty ? '數字已全部抽完' : '其他人請先別看';
+      $('frontNote').textContent = empty ? '所有玩家都抽完了' : '其他人請先別看';
       $('reminder').textContent = empty
         ? '開始輪流回答或表演吧。'
         : drawn === 0 ? '從第一位玩家開始。' : '傳給下一位玩家。';
@@ -303,7 +319,7 @@
   }
 
   $('drawBtn').addEventListener('click', () => {
-    if (state.pool.length === 0) return;
+    if (state.players.length >= state.playerCount || state.pool.length === 0) return;
     const i = Math.floor(Math.random() * state.pool.length);
     const number = state.pool.splice(i, 1)[0];
     state.players.push({ code: codeFor(state.players.length), number });
