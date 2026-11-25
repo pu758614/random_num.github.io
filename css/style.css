@@ -171,15 +171,37 @@ main {
   transform: translateX(-50%);
 }
 .ruler-tick.major { height: 12px; width: 1.5px; }
+/* 遊戲中的量表固定預留指針空間，翻牌時版面不會跳動 */
+#gameScale { padding-top: 30px; }
+/* 抽到的數字：紅色指針從刻度上方指下來 */
 .ruler-mark {
   position: absolute;
-  bottom: -6px;
-  width: 0; height: 0;
+  bottom: 0;
+  width: 2px;
+  height: 22px;
+  background: var(--red);
   transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 9px solid var(--red);
+  transform-origin: bottom;
+  animation: mark-in .45s cubic-bezier(.3, .7, .2, 1) .15s both;
 }
+.ruler-mark-num {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 28px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--red);
+  color: var(--red-ink);
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: .95rem;
+  line-height: 1.4;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes mark-in { from { opacity: 0; transform: translateX(-50%) scaleY(0); } }
 .ruler-ends {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -86,7 +86,7 @@
   }
 
   // 量表：像尺一樣的刻度線，兩端標出數字與說明
-  function renderScale(container, q) {
+  function renderScale(container, q, markValue = null) {
     const count = state.max - state.min + 1;
     // 刻度太多時改成每隔幾格一條，最多約 20 條
     const stepSize = count <= 21 ? 1 : Math.ceil((count - 1) / 20);
@@ -100,6 +100,16 @@
     const last = el('span', { className: 'ruler-tick major' });
     last.style.left = '100%';
     track.append(last);
+
+    // 抽到數字時，在刻度上標出位置
+    container.classList.toggle('marked', markValue !== null);
+    if (markValue !== null) {
+      const mark = el('span', { className: 'ruler-mark' }, [
+        el('span', { className: 'ruler-mark-num', textContent: markValue }),
+      ]);
+      mark.style.left = `${ratio(markValue) * 100}%`;
+      track.append(mark);
+    }
 
     container.replaceChildren(
       track,
@@ -248,14 +258,14 @@
 
   function renderGame() {
     const q = questions[state.qIndex];
-    $('gameQuestion').textContent = q.prompt;
-    renderScale($('gameScale'), q);
-
     const total = state.max - state.min + 1;
     const drawn = state.players.length;
+    const current = state.players[drawn - 1];
+
+    $('gameQuestion').textContent = q.prompt;
+    renderScale($('gameScale'), q, state.showing && current ? current.number : null);
     $('progressText').textContent = `${drawn} / ${total}`;
 
-    const current = state.players[drawn - 1];
     if (state.showing && current) {
       const corner = `${current.number}\n${current.code}`;
       $('cornerTL').textContent = corner;
