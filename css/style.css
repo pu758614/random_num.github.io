@@ -550,3 +550,33 @@ main {
   .stepper input { height: 34px; }
   .flip { min-height: 120px; }
 }
+
+/* ───────── 寬鬆版：第一個螢幕放主要內容，「重新開始」在螢幕下方 ───────── */
+:root { --topbar-h: 52px; }
+body { height: auto; min-height: 100dvh; display: block; }
+.topbar { height: calc(var(--topbar-h) + env(safe-area-inset-top)); align-items: center; padding-top: env(safe-area-inset-top); padding-bottom: 0; }
+main { display: block; overflow: visible; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.view { display: block; }
+
+/* 設定畫面：剛好一個螢幕高，「開始」貼底 */
+#setupView:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--topbar-h) - env(safe-area-inset-top) - 24px - env(safe-area-inset-bottom));
+}
+
+/* 遊戲畫面第一屏 */
+.game-fold {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--topbar-h) - env(safe-area-inset-top));
+  min-height: 460px;
+  padding: 14px 0 16px;
+}
+.game-fold .panel { padding: 14px 16px; }
+.question-text.small { font-size: 1rem; margin-bottom: 10px; }
+.draw-zone { flex: 1 1 auto; min-height: 0; gap: 10px; margin-top: 16px; }
+.flip { flex: 1 1 auto; min-height: 0; }
+.players-block .label-row { margin: 16px 0 8px; }
+.players button { min-width: 40px; height: 40px; }
+.below-fold { padding: 8px 0 12px; border-top: 1px solid var(--line); padding-top: 20px; }

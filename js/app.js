@@ -290,17 +290,19 @@
       flip.dataset.state = 'revealed';
       $('drawBtn').hidden = true;
       $('hideBtn').hidden = false;
+      $('revealBtn').hidden = true;
       $('reminder').textContent = `你是 ${current.code}。記住數字，蓋牌後傳給下一位。`;
     } else {
       flip.dataset.state = 'idle';
-      $('drawBtn').hidden = false;
-      $('hideBtn').hidden = true;
       const empty = drawn >= total || state.pool.length === 0;
-      $('drawBtn').disabled = empty;
+      // 全部抽完後，「抽數字」換成「公布結果」
+      $('drawBtn').hidden = empty;
+      $('hideBtn').hidden = true;
+      $('revealBtn').hidden = !empty;
       $('frontPlayer').textContent = empty ? '—' : codeFor(drawn);
       $('frontNote').textContent = empty ? '所有玩家都抽完了' : '其他人請先別看';
       $('reminder').textContent = empty
-        ? '開始輪流回答或表演吧。'
+        ? '輪流回答或表演，猜完順序再公布。'
         : drawn === 0 ? '從第一位玩家開始。' : '傳給下一位玩家。';
     }
 
@@ -314,7 +316,6 @@
         return el('li', {}, [btn]);
       }));
     }
-    $('revealBtn').disabled = drawn === 0;
   }
 
   $('drawBtn').addEventListener('click', () => {
