@@ -35,7 +35,7 @@
         <button class="btn" id="browseBtn" type="button">從題庫挑</button>
       </div>
 
-      <h2 class="label spaced">數字範圍</h2>
+      <h2 class="label spaced">數字範圍與人數</h2>
       <article class="panel range-panel">
         <div class="stepper">
           <label class="stepper-label" for="minInput">最小</label>
@@ -53,12 +53,8 @@
             <button type="button" class="step" data-target="maxInput" data-delta="1" aria-label="最大值加一">+</button>
           </div>
         </div>
-      </article>
-
-      <h2 class="label spaced">玩家人數</h2>
-      <article class="panel range-panel">
         <div class="stepper">
-          <label class="stepper-label" for="playersInput">人數</label>
+          <label class="stepper-label" for="playersInput">玩家</label>
           <div class="stepper-ctrl">
             <button type="button" class="step" data-target="playersInput" data-delta="-1" aria-label="人數減一">−</button>
             <input type="number" id="playersInput" inputmode="numeric" value="4" min="1" max="999">
@@ -92,9 +88,6 @@
               <span class="corner tl" id="cornerTL"></span>
               <span class="big-number" id="bigNumber"></span>
               <span class="corner br" id="cornerBR"></span>
-              <div class="card-ruler" aria-hidden="true">
-                <span class="card-ruler-line"><span class="card-ruler-mark" id="miniDot"></span></span>
-              </div>
             </div>
           </div>
         </div>
@@ -105,11 +98,10 @@
 
       <div class="players-block">
         <div class="label-row">
-          <h2 class="label">已抽</h2>
+          <h2 class="label">已抽 <span class="muted">· 忘記數字點代號</span></h2>
           <span class="label muted" id="progressText" aria-live="polite"></span>
         </div>
         <ul class="players" id="playerList"></ul>
-        <p class="hint">忘了自己的數字？點你的代號。</p>
       </div>
 
       <div class="row actions">

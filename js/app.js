@@ -287,7 +287,6 @@
       $('cornerTL').textContent = corner;
       $('cornerBR').textContent = corner;
       $('bigNumber').textContent = current.number;
-      $('miniDot').style.left = `${ratio(current.number) * 100}%`;
       flip.dataset.state = 'revealed';
       $('drawBtn').hidden = true;
       $('hideBtn').hidden = false;

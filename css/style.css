@@ -482,3 +482,71 @@ dialog .row { margin-top: 18px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ───────── 一頁式版面：整個畫面塞進一個螢幕，不需上下捲動 ───────── */
+body { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
+.topbar { width: 100%; padding: calc(10px + env(safe-area-inset-top)) 16px 8px; margin-bottom: 0; flex: none; }
+.brand { font-size: 1.25rem; }
+main {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px calc(12px + env(safe-area-inset-bottom));
+  overflow-y: auto;            /* 極小螢幕的退路 */
+}
+.view { flex: 1 0 auto; display: flex; flex-direction: column; }
+
+.label-row { margin: 12px 0 6px; }
+.label.spaced { margin: 14px 0 6px; }
+.panel { padding: 12px 14px; }
+.question-text { font-size: 1.1rem; margin-bottom: 12px; }
+.question-text.small { font-size: .98rem; margin-bottom: 8px; line-height: 1.5; }
+.ruler-ends { margin-top: 4px; font-size: .8rem; }
+.ruler-ends .num { font-size: .95rem; }
+.row { margin-top: 8px; }
+.btn { min-height: 42px; padding: 8px 14px; }
+.btn-lg { min-height: 50px; font-size: 1.05rem; }
+
+.range-panel { gap: 8px; }
+.step { width: 42px; }
+.stepper input { height: 38px; width: 60px; font-size: 1.1rem; }
+#startBtn { margin-top: auto; }
+#setupView .range-panel { margin-bottom: 14px; }
+
+#gameView .panel { flex: none; }
+#gameScale { padding-top: 26px; }
+
+/* 牌佔滿剩下的空間，依螢幕高度自動縮放 */
+.draw-zone { flex: 1 0 auto; display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.flip {
+  flex: 1 1 auto;
+  min-height: 130px;
+  max-height: none;
+  aspect-ratio: auto;
+  width: min(100%, 250px);
+}
+.big-number { font-size: clamp(3.5rem, 13dvh, 7rem); }
+.front-player { font-size: clamp(2.2rem, 9dvh, 3.6rem); }
+.card-back-frame { inset: 12px; }
+.reminder { margin: 0; font-size: .85rem; min-height: 1.4em; }
+
+.players-block { flex: none; }
+.players-block .label-row { margin: 10px 0 6px; }
+.players { flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 2px; min-height: 36px; }
+.players li { flex: none; }
+.players button { min-width: 36px; height: 36px; font-size: .95rem; }
+.actions { margin-top: 10px; flex: none; }
+
+/* 矮螢幕（小手機＋瀏覽器工具列）再壓縮一點 */
+@media (max-height: 640px) {
+  .label-row { margin: 8px 0 4px; }
+  .label.spaced { margin: 10px 0 4px; }
+  .question-text { font-size: 1rem; margin-bottom: 10px; }
+  .question-text.small { font-size: .92rem; }
+  .btn { min-height: 38px; padding: 6px 12px; }
+  .btn-lg { min-height: 44px; }
+  .stepper input { height: 34px; }
+  .flip { min-height: 120px; }
+}
